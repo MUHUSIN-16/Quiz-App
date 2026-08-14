@@ -1,3 +1,13 @@
+---
+title: QuizFlow
+emoji: 🧠
+colorFrom: blue
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # QuizFlow
 
 QuizFlow is a full-stack quiz application built with React, FastAPI, and MongoDB. It guides a learner through a one-way quiz flow:
@@ -138,6 +148,23 @@ Restart the Vite server after changing this value.
 | `GET /analytics/learning-velocity` | Ranks users using accuracy (60%), speed (25%), and consistency (15%). |
 | `GET /analytics/fatigue?quiz_id=...&window=5` | Shows accuracy and response time across consecutive question windows. |
 | `GET /analytics/question-difficulty` | Ranks questions by error rate (70%) and normalized response time (30%). |
+
+## Deploy to Hugging Face Spaces
+
+This repository is ready for deployment as a **Docker Space**. The Docker image builds the React frontend and serves it from the same FastAPI application, so the deployed site and API share one URL.
+
+1. Create a new Space at [Hugging Face Spaces](https://huggingface.co/new-space) with **Docker** as the SDK and **Public** visibility.
+2. In the new Space, open **Settings → Variables and secrets** and add a secret named `MONGO_URL` containing your MongoDB Atlas connection string. Add a variable named `MONGO_DBNAME` with the value `quiz_app`.
+3. Copy the Space Git URL from its page, then push this repository to it:
+
+   ```powershell
+   git remote add huggingface https://huggingface.co/spaces/<your-username>/quizflow.git
+   git push huggingface main
+   ```
+
+4. Wait for the Docker build to finish, then open the Space URL. Verify `/health`, `/docs`, and the quiz flow.
+
+Do not commit `backend/.env` or your Atlas password. Hugging Face injects Space secrets as runtime environment variables for Docker apps.
 
 ## Troubleshooting
 

@@ -1,0 +1,10 @@
+.git
+.agents
+.codex
+backend/.env
+backend/venv
+backend/__pycache__
+frontend/node_modules
+frontend/dist
+**/__pycache__
+**/*.pyc
