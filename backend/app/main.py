@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routers import exams
+from app.api.routers import analytics, chapters, exams, quiz, subjects, submit, users
 
 app = FastAPI(title="Quiz Backend")
 
@@ -19,16 +19,10 @@ async def health():
     return {"status": "ok"}
 
 
-# include routers
 app.include_router(exams.router)
-
-
-from app.api.routers import subjects, chapters, quiz, submit, analytics, users, admin
-
 app.include_router(subjects.router)
 app.include_router(chapters.router)
 app.include_router(quiz.router)
 app.include_router(submit.router)
 app.include_router(analytics.router)
 app.include_router(users.router)
-app.include_router(admin.router)
