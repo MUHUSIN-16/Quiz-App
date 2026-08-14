@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+pymongo[srv]
+pydantic
+python-dotenv
+faker
+pytest
+httpx

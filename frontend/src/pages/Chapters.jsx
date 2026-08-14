@@ -1,0 +1,14 @@
+import React, { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import api from '../services/api';
+import { chapters as demoChapters, subjects } from '../services/mockData';
+import { AppShell, Breadcrumbs, EmptyState, ProgressBar } from '../components/ui';
+import Icon from '../components/Icon';
+
+export default function Chapters() {
+  const { subjectId } = useParams(); const [chapters, setChapters] = useState([]); const [starting, setStarting] = useState(''); const nav = useNavigate();
+  const subjectTitle = subjects.find(subject => subject.id === subjectId)?.title || 'Technology fundamentals';
+  useEffect(() => { api.get('/chapters', { params: { subject_id: subjectId } }).then(response => setChapters(response.data.chapters?.map((chapter, index) => ({ ...demoChapters[index % demoChapters.length], ...chapter })) || [])).catch(() => setChapters(demoChapters)); }, [subjectId]);
+  function start(chapterId) { setStarting(chapterId); api.post('/quiz/start', { user_id: localStorage.getItem('user_id') || 'ava', chapter_id: chapterId }).then(response => { localStorage.setItem(`quiz_subject_${response.data.quiz_id}`, subjectId); nav(`/quiz/${response.data.quiz_id}`); }).catch(() => { const demoQuizId = `demo-${chapterId}`; localStorage.setItem(`quiz_subject_${demoQuizId}`, subjectId); nav(`/quiz/${demoQuizId}`); }).finally(() => setStarting('')); }
+  return <AppShell><div className="page-content"><Breadcrumbs items={[{ label: 'Learning', to: '/exams' }, { label: 'Modern Web Development', to: '/subjects/web' }, { label: subjectTitle }]}/><section className="section-heading chapter-heading"><div><span className="kicker">{subjectTitle}</span><h1>Choose a chapter</h1><p>Build confidence with one focused technology topic at a time.</p></div><div className="chapter-summary"><strong>{chapters.filter(chapter => chapter.progress).length} of {chapters.length || 4}</strong><span>chapters in progress</span></div></section>{chapters.length ? <div className="chapter-list">{chapters.map((chapter, index) => <article className={`chapter-row ${chapter.locked ? 'locked' : ''}`} key={chapter.id}><span className="chapter-number">{String(index + 1).padStart(2, '0')}</span><div className="chapter-info"><h3>{chapter.title}</h3><p>{chapter.questions || 10} questions <span>•</span> {chapter.progress === 100 ? 'Completed' : chapter.progress ? 'In progress' : 'Not started'}</p><ProgressBar value={chapter.progress || 0}/></div><button className="secondary-button" disabled={chapter.locked || starting === chapter.id} onClick={() => start(chapter.id)}>{starting === chapter.id ? 'Starting...' : chapter.progress ? 'Continue' : 'Start quiz'} <Icon name="arrow" size={16}/></button></article>)}</div> : <EmptyState title="No chapters available" detail="Return to the subject list and choose another subject." action={<Link className="primary-button" to="/exams">Back to learning</Link>}/>}</div></AppShell>;
+}
